@@ -1,5 +1,30 @@
 version: "3.8"
 services:
+  dashboard:
+    command: 'bundle exec rails s -b 0.0.0.0'
+    env_file:
+      - './apps/pulsechecker_dashboard/.env'
+    build:
+      context: ./apps/pulsechecker_dashboard
+    volumes:
+      - ./apps/pulsechecker_dashboard:/code
+    depends_on:
+      - postgres
+      - redis
+      - smtp
+    ports:
+      - "3000:3000"
+  agent:
+    command: 'yarn run dev'
+    build:
+      context: ./apps/pulsechecker_agent
+    volumes:
+      - ./apps/pulsechecker_agent/src:/code/src
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3001:3001"
   smtp:
     image: dockage/mailcatcher:0.7.1
     ports:
