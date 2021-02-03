@@ -3,7 +3,7 @@ services:
   dashboard:
     command: 'bundle exec rails s -b 0.0.0.0'
     env_file:
-      - './apps/pulsechecker_dashboard/.env'
+      - './apps/pulsechecker_dashboard/.env.docker'
     build:
       context: ./apps/pulsechecker_dashboard
     volumes:
