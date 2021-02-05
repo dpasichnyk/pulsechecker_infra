@@ -8,12 +8,23 @@ services:
       context: ./apps/pulsechecker_dashboard
     volumes:
       - ./apps/pulsechecker_dashboard:/code
+      - /code/node_modules/
     depends_on:
       - postgres
       - redis
       - smtp
+      - webpacker
     ports:
       - "3000:3000"
+  webpacker:
+    build:
+      context: ./apps/pulsechecker_dashboard
+    command: 'bin/webpack-dev-server --hot'
+    volumes:
+      - ./apps/pulsechecker_dashboard:/code
+      - /code/node_modules/
+    ports:
+      - 3035:3035
   agent:
     command: 'yarn run dev'
     build:
