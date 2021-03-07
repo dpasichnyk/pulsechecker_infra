@@ -14,10 +14,23 @@ services:
       - smtp
     ports:
       - "3000:3000"
-  agent:
+  worker:
+    command: 'yarn run start:worker'
+    environment:
+      - REDIS_URL=redis
+      - METRICS_URL=http://odfe-node1:9200
+    build:
+      context: ./apps/pulsechecker_agent
+    volumes:
+      - ./apps/pulsechecker_agent/src:/code/src
+    depends_on:
+      - postgres
+      - redis
+  scheduler:
     command: 'yarn run dev'
     environment:
       - REDIS_URL=redis
+      - METRICS_URL=https://admin:admin@odfe-node1:9200
     build:
       context: ./apps/pulsechecker_agent
     volumes:
