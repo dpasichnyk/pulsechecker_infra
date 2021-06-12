@@ -2,29 +2,47 @@ version: "3.8"
 services:
   dashboard:
     command: 'bundle exec rails s -b 0.0.0.0'
-    env_file:
-      - './apps/pulsechecker_dashboard/.env.docker'
+    environment:
+      - ADMIN_EMAIL=paskawmi@gmail.com
+      - DB_DATABASE=pulsechecker_dashboard
+      - DB_HOST=pg
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - RAILS_ENV=development
+      - REDIS_DB=0
+      - REDIS_URL=redis
+      - REDIS_PORT=6379
+      - SCHEDULER_API_URL=http://scheduler:3001
+      - SCHEDULER_API_KEY=iPTYMUo2gM1vt2XAHCHJ
+      - ELASTIC_HOST=odfe-node1
+      - ELASTIC_PORT=9200
+      - ELASTIC_USERNAME=admin
+      - ELASTIC_PASSWORD=admin
+      - ELASTIC_SCHEMA=https
+#    env_file:
+#      - './apps/pulsechecker_dashboard/.env.docker'
     build:
       context: ./apps/pulsechecker_dashboard
     volumes:
       - ./apps/pulsechecker_dashboard:/code
     depends_on:
-      - postgres
+      - pg
       - redis
       - smtp
     ports:
       - "3000:3000"
   worker:
-    command: 'yarn run start:worker'
+    command: 'yarn run worker:dev'
     environment:
       - REDIS_URL=redis
-      - METRICS_URL=http://odfe-node1:9200
+      - METRICS_URL=https://admin:admin@odfe-node1:9200
     build:
       context: ./apps/pulsechecker_agent
     volumes:
       - ./apps/pulsechecker_agent/src:/code/src
     depends_on:
-      - postgres
+      - pg
       - redis
   scheduler:
     command: 'yarn run dev'
@@ -36,7 +54,7 @@ services:
     volumes:
       - ./apps/pulsechecker_agent/src:/code/src
     depends_on:
-      - postgres
+      - pg
       - redis
     ports:
       - "3001:3001"
@@ -48,7 +66,7 @@ services:
     logging:
       driver: none
 
-  postgres:
+  pg:
     image: postgres
     restart: always
     volumes:
@@ -56,7 +74,7 @@ services:
     ports:
       - "5544:5432"
     environment:
-      POSTGRES_PASSWORD: 123456
+      - POSTGRES_PASSWORD=postgres
   #    logging:
   #      driver: none
 
@@ -73,6 +91,7 @@ services:
     container_name: odfe-node1
     environment:
       - cluster.name=odfe-cluster
+      - apm-server.secret_token=1
       - node.name=odfe-node1
       - discovery.seed_hosts=odfe-node1,odfe-node2
       - cluster.initial_master_nodes=odfe-node1,odfe-node2
@@ -94,6 +113,7 @@ services:
     image: amazon/opendistro-for-elasticsearch:1.12.0
     container_name: odfe-node2
     environment:
+      - apm-server.secret_token=
       - cluster.name=odfe-cluster
       - node.name=odfe-node2
       - discovery.seed_hosts=odfe-node1,odfe-node2
