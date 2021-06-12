@@ -20,8 +20,6 @@ services:
       - ELASTIC_USERNAME=admin
       - ELASTIC_PASSWORD=admin
       - ELASTIC_SCHEMA=https
-#    env_file:
-#      - './apps/pulsechecker_dashboard/.env.docker'
     build:
       context: ./apps/pulsechecker_dashboard
     volumes:
@@ -65,7 +63,6 @@ services:
       - "1025:1025"
     logging:
       driver: none
-
   pg:
     image: postgres
     restart: always
@@ -75,9 +72,6 @@ services:
       - "5544:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
-  #    logging:
-  #      driver: none
-
   redis:
     image: redis
     volumes:
